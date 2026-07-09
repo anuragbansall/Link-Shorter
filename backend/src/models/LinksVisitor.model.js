@@ -50,6 +50,14 @@ LinksVisitorSchema.statics.hashIpAddressAndUserAgent = function ({
   return hash.digest("hex");
 };
 
+LinksVisitorSchema.index(
+  {
+    linkId: 1,
+    hashedIpAddress: 1,
+  },
+  { unique: true },
+); // Ensure unique combination of linkId and hashedIpAddress
+
 const LinksVisitor = mongoose.model("LinksVisitor", LinksVisitorSchema);
 
 export default LinksVisitor;

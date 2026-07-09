@@ -75,9 +75,12 @@ function Dashboard() {
             !
           </h1>
           <p className="text-zinc-500">Welcome to your dashboard!</p>
-          <Button isPrimary={true} className="w-fit mt-4">
+          <Link
+            to="/dashboard/create-link"
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-2 w-max hover:bg-blue-600 transition-colors"
+          >
             Create New Link
-          </Button>
+          </Link>
         </div>
       </header>
 
@@ -133,40 +136,50 @@ function Dashboard() {
               )}
             </div>
           ) : (
-            links?.data?.slice(0, 3).map((link) => (
-              <div
-                key={link._id}
-                className="flex items-center gap-4 px-6 py-4 border-t border-b border-zinc-200 hover:bg-blue-50 transition-colors cursor-pointer"
-              >
-                <span className="p-3 bg-blue-500/10 text-blue-500 rounded-xl text-xl">
-                  <IoMdLink />
-                </span>
+            links?.data
+              ?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+              .slice(0, 3)
+              .map((link) => (
+                <div
+                  key={link._id}
+                  className="flex items-center gap-4 px-6 py-4 border-t border-b border-zinc-200 hover:bg-blue-50 transition-colors cursor-pointer"
+                >
+                  <span className="p-3 bg-blue-500/10 text-blue-500 rounded-xl text-xl">
+                    <IoMdLink />
+                  </span>
 
-                <div className="flex flex-col gap-2 grow min-w-0">
-                  <Link
-                    className="text-zinc-800 font-medium truncate hover:text-blue-500 transition-colors"
-                    to={link.shortLink}
-                  >
-                    {link.shortLink}
-                  </Link>
+                  <div className="flex flex-col gap-2 grow min-w-0">
+                    <a
+                      className="text-zinc-800 font-medium truncate hover:text-blue-500 transition-colors"
+                      href={link.shortLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {link.shortLink}
+                    </a>
 
-                  <Link
-                    className="text-zinc-500 text-sm truncate hover:text-blue-500 transition-colors"
-                    to={link.originalUrl}
-                  >
-                    {link.originalUrl}
-                  </Link>
+                    <a
+                      className="text-zinc-500 text-sm truncate hover:text-blue-500 transition-colors"
+                      href={link.originalUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {link.originalUrl}
+                    </a>
+                  </div>
+
+                  <div className="flex-col gap-2 ml-auto shrink-0 hidden md:flex">
+                    <p className="text-zinc-800 font-medium">
+                      {link.analytics?.totalClicks || "N/A"} Clicks
+                    </p>
+
+                    <p className="text-zinc-500 text-sm truncate">
+                      {link.analytics?.totalUniqueClicks || "N/A"} Unique
+                      Visitors
+                    </p>
+                  </div>
                 </div>
-
-                <div className="flex-col gap-2 ml-auto shrink-0 hidden md:flex">
-                  <p className="text-zinc-800 font-medium">{0} Clicks</p>
-
-                  <p className="text-zinc-500 text-sm truncate">
-                    {0} Unique Visitors
-                  </p>
-                </div>
-              </div>
-            ))
+              ))
           )}
         </div>
       </div>

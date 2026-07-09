@@ -4,7 +4,7 @@ import { RiAdminFill } from "react-icons/ri";
 import Button from "../../Components/Common/Button";
 import useLogin from "../../hooks/useLogin";
 import useUser from "@/hooks/useUser";
-import { Navigate } from "react-router";
+import { Link, Navigate } from "react-router";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -111,6 +111,14 @@ function Login() {
         <Button isPrimary={true} className="w-full mt-4">
           Login
         </Button>
+
+        <Link
+          to="/register"
+          replace
+          className="text-blue-500 text-sm mt-4 block text-center hover:underline"
+        >
+          Don't have an account? Register
+        </Link>
       </form>
     </main>
   );

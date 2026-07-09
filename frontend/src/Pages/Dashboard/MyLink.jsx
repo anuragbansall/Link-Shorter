@@ -101,28 +101,32 @@ function MyLink() {
                 </span>
 
                 <div className="flex flex-col gap-2 grow min-w-0">
-                  <Link
-                    to={link.shortLink}
+                  <a
+                    href={link.shortLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-zinc-800 font-medium truncate hover:text-blue-500 transition-colors"
                   >
                     {link.shortLink}
-                  </Link>
+                  </a>
 
-                  <Link
-                    to={link.originalUrl}
+                  <a
+                    href={link.originalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-zinc-500 text-sm truncate hover:text-blue-500 transition-colors"
                   >
                     {link.originalUrl}
-                  </Link>
+                  </a>
                 </div>
 
                 <div className="hidden md:flex flex-col gap-2 ml-auto">
                   <p className="text-zinc-800 font-medium">
-                    {link.clicks || 0} Clicks
+                    {link.analytics?.totalClicks || "N/A"} Clicks
                   </p>
 
                   <p className="text-zinc-500 text-sm truncate">
-                    {link.uniqueVisitors || 0} Unique Visitors
+                    {link.analytics?.totalUniqueClicks || "N/A"} Unique Visitors
                   </p>
                 </div>
 

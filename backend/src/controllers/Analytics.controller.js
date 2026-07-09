@@ -5,67 +5,52 @@ import LinksVisitor from "../models/LinksVisitor.model.js";
 
 export const getAnalytics = async (req, res) => {
   try {
-    const userId = new mongoose.Types.ObjectId(req.user.id);
+    const userId = req.user.id;
 
-    const [totalLinks, analyticsResult, countries] = await Promise.all([
-      // Total links
-      Links.countDocuments({ userId }),
+    // Fetch only the user's link ids
+    const links = await Links.find({ userId }).select("_id").lean();
 
-      // Total clicks & unique clicks
+    const linkIds = links.map((link) => link._id);
+
+    if (!linkIds.length) {
+      return res.status(200).json({
+        message: "Analytics fetched successfully",
+        data: {
+          totalLinks: 0,
+          totalClicks: 0,
+          totalUniqueClicks: 0,
+          totalCountries: 0,
+          countries: [],
+        },
+      });
+    }
+
+    const [[analytics = {}], countries] = await Promise.all([
       Analytics.aggregate([
         {
-          $lookup: {
-            from: "links",
-            localField: "linkId",
-            foreignField: "_id",
-            as: "link",
-          },
-        },
-        {
-          $unwind: "$link",
-        },
-        {
           $match: {
-            "link.userId": userId,
+            linkId: { $in: linkIds },
           },
         },
         {
           $group: {
             _id: null,
-            totalClicks: {
-              $sum: "$totalClicks",
-            },
-            totalUniqueClicks: {
-              $sum: "$totalUniqueClicks",
-            },
+            totalClicks: { $sum: "$totalClicks" },
+            totalUniqueClicks: { $sum: "$totalUniqueClicks" },
           },
         },
       ]),
 
-      // Country-wise visitors
       LinksVisitor.aggregate([
         {
-          $lookup: {
-            from: "links",
-            localField: "linkId",
-            foreignField: "_id",
-            as: "link",
-          },
-        },
-        {
-          $unwind: "$link",
-        },
-        {
           $match: {
-            "link.userId": userId,
+            linkId: { $in: linkIds },
           },
         },
         {
           $group: {
             _id: "$country",
-            visitors: {
-              $sum: 1,
-            },
+            visitors: { $sum: 1 },
           },
         },
         {
@@ -83,23 +68,18 @@ export const getAnalytics = async (req, res) => {
       ]),
     ]);
 
-    const analytics = analyticsResult[0] || {
-      totalClicks: 0,
-      totalUniqueClicks: 0,
-    };
-
     return res.status(200).json({
       message: "Analytics fetched successfully",
       data: {
-        totalLinks,
-        totalClicks: analytics.totalClicks,
-        totalUniqueClicks: analytics.totalUniqueClicks,
+        totalLinks: links.length,
+        totalClicks: analytics.totalClicks ?? 0,
+        totalUniqueClicks: analytics.totalUniqueClicks ?? 0,
         totalCountries: countries.length,
         countries,
       },
     });
   } catch (error) {
-    console.error("Error fetching analytics:", error);
+    console.error(error);
 
     return res.status(500).json({
       message: "Internal Server Error",
@@ -108,18 +88,19 @@ export const getAnalytics = async (req, res) => {
 };
 
 /**
- * Analytics for a single link
+ * Single link analytics
  */
 export const getLinkAnalytics = async (req, res) => {
   try {
-    const userId = req.user.id;
     const { linkId } = req.params;
+    const userId = req.user.id;
 
-    // Verify ownership
     const link = await Links.findOne({
       _id: linkId,
       userId,
-    }).lean();
+    })
+      .populate("analytics")
+      .lean();
 
     if (!link) {
       return res.status(404).json({
@@ -127,52 +108,44 @@ export const getLinkAnalytics = async (req, res) => {
       });
     }
 
-    const [analytics, visitorData] = await Promise.all([
-      Analytics.findOne({
-        linkId,
-      }).lean(),
-
-      LinksVisitor.aggregate([
-        {
-          $match: {
-            linkId: new mongoose.Types.ObjectId(linkId),
+    const visitorData = await LinksVisitor.aggregate([
+      {
+        $match: {
+          linkId: new mongoose.Types.ObjectId(linkId),
+        },
+      },
+      {
+        $group: {
+          _id: "$country",
+          visitors: {
+            $sum: 1,
           },
         },
-        {
-          $group: {
-            _id: "$country",
-            visitors: {
-              $sum: 1,
-            },
-          },
+      },
+      {
+        $project: {
+          _id: 0,
+          country: "$_id",
+          visitors: 1,
         },
-        {
-          $project: {
-            _id: 0,
-            country: "$_id",
-            visitors: 1,
-          },
+      },
+      {
+        $sort: {
+          visitors: -1,
         },
-        {
-          $sort: {
-            visitors: -1,
-          },
-        },
-      ]),
+      },
     ]);
 
     return res.status(200).json({
       message: "Analytics fetched successfully",
       data: {
-        ...(analytics || {
-          totalClicks: 0,
-          totalUniqueClicks: 0,
-        }),
+        totalClicks: link.analytics?.totalClicks ?? 0,
+        totalUniqueClicks: link.analytics?.totalUniqueClicks ?? 0,
         visitorData,
       },
     });
   } catch (error) {
-    console.error("Error fetching link analytics:", error);
+    console.error(error);
 
     return res.status(500).json({
       message: "Internal Server Error",

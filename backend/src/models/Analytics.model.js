@@ -24,6 +24,18 @@ const AnalyticsSchema = new mongoose.Schema(
   },
 );
 
+AnalyticsSchema.index({ linkId: 1 });
+
+AnalyticsSchema.virtual("link", {
+  ref: "Links",
+  localField: "linkId",
+  foreignField: "_id",
+  justOne: true, // one link document per analytics
+}); // Virtual field to populate the associated link
+
+AnalyticsSchema.set("toJSON", { virtuals: true });
+AnalyticsSchema.set("toObject", { virtuals: true });
+
 const Analytics = mongoose.model("Analytics", AnalyticsSchema);
 
 export default Analytics;

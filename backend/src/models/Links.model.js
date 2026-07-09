@@ -90,6 +90,16 @@ LinksSchema.methods.isExpired = function () {
 
 LinksSchema.index({ userId: 1 });
 
+LinksSchema.virtual("analytics", {
+  ref: "Analytics",
+  localField: "_id",
+  foreignField: "linkId",
+  justOne: true, // one analytics document per link
+});
+
+LinksSchema.set("toJSON", { virtuals: true }); // Include virtuals in JSON and object outputs
+LinksSchema.set("toObject", { virtuals: true }); // Include virtuals in JSON and object outputs
+
 const Links = mongoose.model("Links", LinksSchema);
 
 export default Links;

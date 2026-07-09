@@ -4,7 +4,7 @@ import { RiAdminFill } from "react-icons/ri";
 import Button from "../../Components/Common/Button";
 import useRegister from "../../hooks/useRegister";
 import useUser from "@/hooks/useUser";
-import { Navigate } from "react-router";
+import { Link, Navigate } from "react-router";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -139,6 +139,14 @@ function Register() {
         >
           {registerMutation.isPending ? "Registering..." : "Register"}
         </Button>
+
+        <Link
+          to="/login"
+          replace
+          className="text-blue-500 text-sm mt-4 block text-center hover:underline"
+        >
+          Already have an account? Login
+        </Link>
       </form>
     </main>
   );

@@ -72,7 +72,7 @@ export const createLink = async (req, res) => {
 export const getAllLinks = async (req, res) => {
   try {
     const userId = req.user.id;
-    const links = await Link.find({ userId });
+    const links = await Link.find({ userId }).populate("analytics"); // Populate the analytics virtual field
 
     res
       .status(200)

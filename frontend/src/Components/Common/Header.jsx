@@ -4,9 +4,7 @@ import Button from "./Button";
 import Logo from "./Logo";
 import useUser from "../../hooks/useUser";
 import useLogout from "../../hooks/useLogout";
-import Avatar from "./Avatar";
-import { HoveredLink, Menu, MenuItem } from "../ui/navbar-menu";
-import { cn } from "@/lib/utils";
+import UserMenu from "./UserMenu";
 
 const navLinks = [
   {
@@ -20,8 +18,6 @@ const navLinks = [
 ];
 
 function Header() {
-  const [active, setActive] = useState(false);
-
   const { data: user, isLoading, isError } = useUser();
   const logoutMutation = useLogout();
 
@@ -55,31 +51,7 @@ function Header() {
             </Button>
           </>
         ) : (
-          <>
-            <Menu setActive={setActive} className={cn("bg-transparent p-0")}>
-              <MenuItem
-                setActive={setActive}
-                active={active}
-                item={
-                  <Avatar className="text-2xl cursor-pointer">
-                    {user?.data?.username?.charAt(0)?.toUpperCase() || "U"}
-                  </Avatar>
-                }
-              >
-                <div className="flex flex-col space-y-4 text-sm">
-                  <Button
-                    onClick={() => {
-                      console.log("Logout clicked");
-                      logoutMutation.mutate();
-                    }}
-                  >
-                    Logout
-                  </Button>
-                  <HoveredLink href="/dashboard/settings">Profile</HoveredLink>
-                </div>
-              </MenuItem>
-            </Menu>
-          </>
+          <UserMenu user={user} logoutMutation={logoutMutation} />
         )}
       </div>
     </header>
