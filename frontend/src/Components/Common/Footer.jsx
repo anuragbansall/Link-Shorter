@@ -2,6 +2,7 @@ import React from "react";
 import InputButton from "./InputButton";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
+import { successToast } from "@/utils/toast";
 
 function Footer() {
   const socialLinks = [
@@ -40,6 +41,13 @@ function Footer() {
             placeholder="Enter your email"
             className="mt-6 border-zinc-300"
             buttonText="Subscribe"
+            type="email"
+            onSubmit={(e) => {
+              e.preventDefault();
+
+              e.target.reset();
+              successToast("Subscribed successfully!");
+            }}
           />
         </div>
 
@@ -58,7 +66,7 @@ function Footer() {
         </div>
       </div>
 
-      <p className="text-center text-zinc-500 text-lg my-8">
+      <p className="text-center text-zinc-500 text-sm md:text-lg my-8">
         &copy; {new Date().getFullYear()} Your Company. All rights reserved.
       </p>
     </footer>

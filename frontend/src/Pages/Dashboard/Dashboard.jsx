@@ -66,13 +66,12 @@ function Dashboard() {
           {user?.data?.username?.charAt(0)?.toUpperCase() || "U"}
         </Avatar>
 
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold text-zinc-800">
+        <div className="flex flex-col gap-2 min-w-0 flex-1">
+          <h1 className="text-3xl font-bold text-zinc-800 truncate min-w-0 max-w-full">
             Welcome back,{" "}
-            <span className="text-blue-500 capitalize">
-              {user?.data?.username || "User"}
+            <span className="text-blue-500 capitalize block md:inline truncate max-w-full">
+              {user?.data?.username || "User"} !
             </span>
-            !
           </h1>
           <p className="text-zinc-500">Welcome to your dashboard!</p>
           <Link
